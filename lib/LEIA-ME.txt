@@ -1,0 +1,22 @@
+============================================================
+  Dependência: SQLite JDBC Driver
+============================================================
+
+Coloque nesta pasta o arquivo:
+    sqlite-jdbc-3.47.1.0.jar
+
+Como obter:
+1. Acesse: https://github.com/xerial/sqlite-jdbc/releases/tag/3.47.1.0
+2. Baixe o arquivo "sqlite-jdbc-3.47.1.0.jar"
+3. Salve-o nesta pasta (lib/)
+
+Alternativamente, via linha de comando (PowerShell):
+    Invoke-WebRequest -Uri "https://github.com/xerial/sqlite-jdbc/releases/download/3.47.1.0/sqlite-jdbc-3.47.1.0.jar" -OutFile "lib\sqlite-jdbc-3.47.1.0.jar"
+
+Ou via curl:
+    curl -L -o lib/sqlite-jdbc-3.47.1.0.jar https://github.com/xerial/sqlite-jdbc/releases/download/3.47.1.0/sqlite-jdbc-3.47.1.0.jar
+
+Após colocar o JAR, execute:
+    compile.bat   (compila o projeto)
+    run.bat       (inicia a aplicação)
+============================================================
