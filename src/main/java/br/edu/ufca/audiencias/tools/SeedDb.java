@@ -6,12 +6,6 @@ import java.sql.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-/**
- * Utilitário de linha de comando para popular o banco com dados de teste.
- * Executado pelo compile.bat após o InitDb, nunca pela aplicação em runtime.
- *
- * Uso: java -cp out;lib/sqlite-jdbc-*.jar br.edu.ufca.audiencias.tools.SeedDb
- */
 public class SeedDb {
 
     private static final String URL = "jdbc:sqlite:audiencias.db";

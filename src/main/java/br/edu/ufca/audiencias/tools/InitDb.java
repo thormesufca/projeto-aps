@@ -6,12 +6,6 @@ import java.sql.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-/**
- * Utilitário de linha de comando para inicializar o banco de dados do zero.
- * Executado pelo compile.bat após a compilação, nunca pela aplicação em runtime.
- *
- * Uso: java -cp out;lib/sqlite-jdbc-*.jar br.edu.ufca.audiencias.tools.InitDb
- */
 public class InitDb {
 
     private static final String URL = "jdbc:sqlite:audiencias.db";
