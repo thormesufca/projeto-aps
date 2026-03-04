@@ -12,6 +12,7 @@
 
 # Out directory
 out/
+*.db
 
 # Package Files #
 *.jar
