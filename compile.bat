@@ -7,7 +7,7 @@ set JAVA="%JAVA_HOME%\bin\java.exe"
 
 set SRC=src\main\java
 set OUT=out
-set LIB=lib\sqlite-jdbc-3.51.2.0.jar;lib\flatlaf-3.7.jar;lib\flatlaf-extras-3.7.jar;lib\swing-datetime-picker-2.1.3.jar;lib\miglayout-core-5.3.jar;lib\miglayout-swing-5.3.jar
+set LIB=lib\sqlite-jdbc-3.51.2.0.jar;lib\flatlaf-3.7.jar;lib\flatlaf-extras-3.7.jar
 
 :: Verificar se os JARs existem
 if not exist "lib\sqlite-jdbc-3.51.2.0.jar" (
@@ -28,24 +28,7 @@ if not exist "lib\flatlaf-extras-3.7.jar" (
     pause
     exit /b 1
 )
-if not exist "lib\swing-datetime-picker-2.1.3.jar" (
-    echo ERRO: swing-datetime-picker JAR nao encontrado em lib\swing-datetime-picker-2.1.3.jar
-    echo Consulte lib\LEIA-ME.txt para instrucoes de download.
-    pause
-    exit /b 1
-)
-if not exist "lib\miglayout-core-5.3.jar" (
-    echo ERRO: MigLayout Core JAR nao encontrado em lib\miglayout-core-5.3.jar
-    echo Consulte lib\LEIA-ME.txt para instrucoes de download.
-    pause
-    exit /b 1
-)
-if not exist "lib\miglayout-swing-5.3.jar" (
-    echo ERRO: MigLayout Swing JAR nao encontrado em lib\miglayout-swing-5.3.jar
-    echo Consulte lib\LEIA-ME.txt para instrucoes de download.
-    pause
-    exit /b 1
-)
+
 
 echo ============================================================
 echo  Compilando Sistema de Gestao de Processos e Audiencias

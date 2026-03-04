@@ -1,22 +1,20 @@
 package br.edu.ufca.audiencias.ui;
 
-import raven.datetime.DatePicker;
-import raven.datetime.TimePicker;
-
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
- * Componente DateTimePicker usando swing-datetime-picker (DJ-Raven).
- * Combina DatePicker + TimePicker (24h) com pop-up visual.
+ * Componente DateTimePicker usando JSpinner nativo do Swing.
+ * Combina dois spinners: data (dd/MM/yyyy) e hora (HH:mm).
  */
 public class DateTimePicker extends JPanel {
 
-    private final DatePicker datePicker;
-    private final TimePicker timePicker;
+    private final JSpinner dateSpinner;
+    private final JSpinner timeSpinner;
 
     public DateTimePicker() {
         this(LocalDateTime.now());
@@ -26,38 +24,36 @@ public class DateTimePicker extends JPanel {
         setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
         setOpaque(false);
 
-        datePicker = new DatePicker();
-        datePicker.setDateFormat("dd/MM/yyyy");
-        datePicker.setCloseAfterSelected(true);
+        Date initialDate = Date.from(initial.atZone(ZoneId.systemDefault()).toInstant());
 
-        JFormattedTextField dateEditor = new JFormattedTextField();
-        dateEditor.setColumns(10);
-        datePicker.setEditor(dateEditor);
-        datePicker.setSelectedDate(initial.toLocalDate());
+        SpinnerDateModel dateModel = new SpinnerDateModel(initialDate, null, null, Calendar.DAY_OF_MONTH);
+        dateSpinner = new JSpinner(dateModel);
+        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy"));
 
-        timePicker = new TimePicker();
-        timePicker.set24HourView(true);
+        SpinnerDateModel timeModel = new SpinnerDateModel(initialDate, null, null, Calendar.MINUTE);
+        timeSpinner = new JSpinner(timeModel);
+        timeSpinner.setEditor(new JSpinner.DateEditor(timeSpinner, "HH:mm"));
 
-        JFormattedTextField timeEditor = new JFormattedTextField();
-        timeEditor.setColumns(6);
-        timePicker.setEditor(timeEditor);
-        timePicker.setSelectedTime(initial.toLocalTime().withSecond(0).withNano(0));
-
-        add(dateEditor);
-        add(datePicker);
-        add(Box.createHorizontalStrut(6));
-        add(timeEditor);
-        add(timePicker);
+        add(new JLabel("Data:"));
+        add(dateSpinner);
+        add(Box.createHorizontalStrut(8));
+        add(new JLabel("Hora:"));
+        add(timeSpinner);
     }
 
-    /** Retorna o LocalDateTime selecionado no picker. */
+    /** Retorna o LocalDateTime combinando os valores dos dois spinners. */
     public LocalDateTime getLocalDateTime() {
-        LocalDate date = datePicker.isDateSelected()
-                ? datePicker.getSelectedDate()
-                : LocalDate.now();
-        LocalTime time = timePicker.isTimeSelected()
-                ? timePicker.getSelectedTime()
-                : LocalTime.now().withSecond(0).withNano(0);
-        return LocalDateTime.of(date, time);
+        Calendar dateCal = Calendar.getInstance();
+        dateCal.setTime((Date) dateSpinner.getValue());
+
+        Calendar timeCal = Calendar.getInstance();
+        timeCal.setTime((Date) timeSpinner.getValue());
+
+        dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+        dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+        dateCal.set(Calendar.SECOND, 0);
+        dateCal.set(Calendar.MILLISECOND, 0);
+
+        return dateCal.getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 }
