@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,17 +142,26 @@ public class AssuntoCNJRepository {
 
     public List<AssuntoCNJ> buscarPorNome(String termo) {
         List<AssuntoCNJ> lista = new ArrayList<>();
+        String termoNorm = normalizar(termo);
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT cod_item, cod_item_pai, nome FROM assuntos_cnj WHERE nome LIKE ? ORDER BY nome LIMIT 100")) {
-            ps.setString(1, "%" + termo.toUpperCase() + "%");
+                "SELECT cod_item, cod_item_pai, nome FROM assuntos_cnj ORDER BY nome")) {
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                lista.add(mapear(rs));
+            while (rs.next() && lista.size() < 100) {
+                AssuntoCNJ a = mapear(rs);
+                if (normalizar(a.getNome()).contains(termoNorm)) {
+                    lista.add(a);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao buscar assuntos CNJ: " + e.getMessage(), e);
         }
         return lista;
+    }
+
+    private static String normalizar(String s) {
+        return Normalizer.normalize(s, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase();
     }
 
     private AssuntoCNJ mapear(ResultSet rs) throws SQLException {

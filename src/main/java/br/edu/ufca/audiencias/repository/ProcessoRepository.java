@@ -1,6 +1,7 @@
 package br.edu.ufca.audiencias.repository;
 
 import br.edu.ufca.audiencias.models.Advogado;
+import br.edu.ufca.audiencias.models.Cliente;
 import br.edu.ufca.audiencias.models.Processo;
 import br.edu.ufca.audiencias.models.enums.FaseProcesso;
 import br.edu.ufca.audiencias.models.enums.StatusProcesso;
@@ -95,7 +96,14 @@ public class ProcessoRepository {
     }
 
     public Optional<Processo> buscarPorId(Long id) {
-        try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM processos WHERE id=?")) {
+        String sql = """
+                SELECT p.*, c.id AS cliente_id, c.nome AS cliente_nome
+                FROM processos p
+                LEFT JOIN contratos ct ON ct.processo_id = p.id
+                LEFT JOIN clientes c ON c.id = ct.cliente_id
+                WHERE p.id = ?
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next())
@@ -118,9 +126,15 @@ public class ProcessoRepository {
 
     public List<Processo> listarTodos() {
         List<Processo> lista = new ArrayList<>();
+        String sql = """
+                SELECT p.*, c.id AS cliente_id, c.nome AS cliente_nome
+                FROM processos p
+                LEFT JOIN contratos ct ON ct.processo_id = p.id
+                LEFT JOIN clientes c ON c.id = ct.cliente_id
+                ORDER BY p.data_abertura DESC
+                """;
         try (Statement st = conn.createStatement();
-                ResultSet rs = st.executeQuery(
-                        "SELECT * FROM processos ORDER BY data_abertura DESC")) {
+                ResultSet rs = st.executeQuery(sql)) {
             while (rs.next())
                 lista.add(mapear(rs));
         } catch (SQLException e) {
@@ -132,8 +146,15 @@ public class ProcessoRepository {
     public List<Processo> buscarPorNumero(String numero) {
         List<Processo> lista = new ArrayList<>();
         String termoNormalizado = numero != null ? numero.replaceAll("\\D", "") : "";
-        try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM processos WHERE numero LIKE ? ORDER BY numero")) {
+        String sql = """
+                SELECT p.*, c.id AS cliente_id, c.nome AS cliente_nome
+                FROM processos p
+                LEFT JOIN contratos ct ON ct.processo_id = p.id
+                LEFT JOIN clientes c ON c.id = ct.cliente_id
+                WHERE p.numero LIKE ?
+                ORDER BY p.numero
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "%" + termoNormalizado + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next())
@@ -147,9 +168,10 @@ public class ProcessoRepository {
     public List<Processo> buscarPorNomeCliente(String nomeCliente) {
         List<Processo> lista = new ArrayList<>();
         String sql = """
-                SELECT DISTINCT p.* FROM processos p
+                SELECT p.*, c.id AS cliente_id, c.nome AS cliente_nome
+                FROM processos p
                 INNER JOIN contratos ct ON ct.processo_id = p.id
-                INNER JOIN clientes c ON ct.cliente_id = c.id
+                INNER JOIN clientes c ON c.id = ct.cliente_id
                 WHERE c.nome LIKE ?
                 ORDER BY p.numero
                 """;
@@ -167,8 +189,15 @@ public class ProcessoRepository {
 
     public List<Processo> buscarPorStatus(StatusProcesso status) {
         List<Processo> lista = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM processos WHERE status=? ORDER BY numero")) {
+        String sql = """
+                SELECT p.*, c.id AS cliente_id, c.nome AS cliente_nome
+                FROM processos p
+                LEFT JOIN contratos ct ON ct.processo_id = p.id
+                LEFT JOIN clientes c ON c.id = ct.cliente_id
+                WHERE p.status = ?
+                ORDER BY p.numero
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status.name());
             ResultSet rs = ps.executeQuery();
             while (rs.next())
@@ -182,8 +211,10 @@ public class ProcessoRepository {
     public List<Processo> buscarPorClienteId(Long clienteId) {
         List<Processo> lista = new ArrayList<>();
         String sql = """
-                SELECT DISTINCT p.* FROM processos p
+                SELECT p.*, c.id AS cliente_id, c.nome AS cliente_nome
+                FROM processos p
                 INNER JOIN contratos ct ON ct.processo_id = p.id
+                INNER JOIN clientes c ON c.id = ct.cliente_id
                 WHERE ct.cliente_id = ?
                 ORDER BY p.data_abertura DESC
                 """;
@@ -269,6 +300,19 @@ public class ProcessoRepository {
             a.setId(advId);
             p.setAdvogadoResponsavel(a);
         }
+
+        try {
+            long clienteId = rs.getLong("cliente_id");
+            if (!rs.wasNull()) {
+                Cliente c = new Cliente();
+                c.setId(clienteId);
+                c.setNome(rs.getString("cliente_nome"));
+                p.setCliente(c);
+            }
+        } catch (SQLException ignored) {
+            // consulta sem JOIN com clientes — campo ausente no ResultSet
+        }
+
         return p;
     }
 }

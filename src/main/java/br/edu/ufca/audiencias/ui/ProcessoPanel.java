@@ -27,12 +27,12 @@ public class ProcessoPanel extends JPanel {
             new String[] { "Por Número", "Por Cliente", "Por Status" });
 
     private static final String[] COLS = {
-            "ID", "Número", "Tipo", "Status", "Fase", "Órgão Julgador", "Resultado"
+            "ID", "Número", "Cliente", "Tipo", "Status", "Fase", "Órgão Julgador", "Resultado"
     };
 
     public ProcessoPanel(SistemaJuridicoFacade facade) {
         this.facade = facade;
-        setBackground(Color.WHITE);
+        setBackground(Color.BLACK);
         setLayout(new BorderLayout(0, 0));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -57,6 +57,7 @@ public class ProcessoPanel extends JPanel {
         JPanel busca = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         busca.setOpaque(false);
         JLabel lblEst = new JLabel("Buscar:");
+        lblEst.setForeground(java.awt.Color.BLACK);
         JButton btnBuscar = Ui.btnPrimary("Buscar");
         JButton btnLimpar = Ui.btnSecondary("Todos");
         btnBuscar.addActionListener(e -> buscar());
@@ -136,9 +137,10 @@ public class ProcessoPanel extends JPanel {
         for (Processo p : processos) {
             String resultado = p.getFavoravel() == null ? "—"
                     : p.getFavoravel() ? "Favorável" : "Desfavorável";
+            String nomeCliente = p.getCliente() != null ? p.getCliente().getNome() : "—";
             tableModel.addRow(new Object[] {
                     p.getId(), MaskedField.formatarNumeroProcesso(p.getNumero()),
-                    p.getTipo(), p.getStatus(), p.getFase(), p.getOrgaoJulgador(), resultado
+                    nomeCliente, p.getTipo(), p.getStatus(), p.getFase(), p.getOrgaoJulgador(), resultado
             });
         }
     }
@@ -185,13 +187,16 @@ public class ProcessoPanel extends JPanel {
 
         JTextField fValorCausa = new JTextField(
                 existente != null && existente.getValorCausa() != null
-                        ? existente.getValorCausa().toPlainString() : "");
+                        ? existente.getValorCausa().toPlainString()
+                        : "");
         JTextField fValorCondenacao = new JTextField(
                 existente != null && existente.getValorCondenacao() != null
-                        ? existente.getValorCondenacao().toPlainString() : "");
+                        ? existente.getValorCondenacao().toPlainString()
+                        : "");
         JTextField fHonorarios = new JTextField(
                 existente != null && existente.getHonorariosSucumbenciais() != null
-                        ? existente.getHonorariosSucumbenciais().toPlainString() : "");
+                        ? existente.getHonorariosSucumbenciais().toPlainString()
+                        : "");
 
         JComboBox<String> fResultado = new JComboBox<>(
                 new String[] { "Não definido", "Favorável", "Desfavorável" });
@@ -215,7 +220,9 @@ public class ProcessoPanel extends JPanel {
         // ── Aba 3: Assuntos ──────────────────────────────────────────────────
         DefaultTableModel assuntosModel = new DefaultTableModel(
                 new String[] { "ID", "Código", "Nome", "Principal" }, 0) {
-            public boolean isCellEditable(int row, int col) { return false; }
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
         List<Long> assuntosOriginaisIds = new ArrayList<>();
         if (existente != null) {
@@ -358,7 +365,8 @@ public class ProcessoPanel extends JPanel {
         btns.add(btnExcluir);
 
         btnAgendar.addActionListener(e -> {
-            JDialog dlgAg = new JDialog(owner, "Agendar Audiência — " + MaskedField.formatarNumeroProcesso(p.getNumero()),
+            JDialog dlgAg = new JDialog(owner,
+                    "Agendar Audiência — " + MaskedField.formatarNumeroProcesso(p.getNumero()),
                     Dialog.ModalityType.APPLICATION_MODAL);
             dlgAg.setSize(480, 380);
             dlgAg.setLocationRelativeTo(owner);
@@ -868,7 +876,6 @@ public class ProcessoPanel extends JPanel {
         };
         refresh.run();
 
-        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         JTextField fTit = new JTextField(12);
         JTextField fDesc = new JTextField(12);
         JComboBox<TipoDocumento> fTipo = new JComboBox<>(TipoDocumento.values());
@@ -878,17 +885,25 @@ public class ProcessoPanel extends JPanel {
         JButton btnAdd = Ui.btnPrimary("Adicionar Doc.");
         JButton btnRem = Ui.btnDanger("Remover");
 
-        form.add(new JLabel("Título:"));
-        form.add(fTit);
-        form.add(new JLabel("Descrição:"));
-        form.add(fDesc);
-        form.add(new JLabel("Tipo:"));
-        form.add(fTipo);
-        form.add(chkAssinar);
-        form.add(chkProtocolar);
-        form.add(chkUrgente);
-        form.add(btnAdd);
-        form.add(btnRem);
+        JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        row1.add(new JLabel("Título:"));
+        row1.add(fTit);
+        row1.add(new JLabel("Descrição:"));
+        row1.add(fDesc);
+        row1.add(new JLabel("Tipo:"));
+        row1.add(fTipo);
+
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        row2.add(chkAssinar);
+        row2.add(chkProtocolar);
+        row2.add(chkUrgente);
+        row2.add(btnAdd);
+        row2.add(btnRem);
+
+        JPanel form = new JPanel();
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+        form.add(row1);
+        form.add(row2);
 
         btnAdd.addActionListener(e -> {
             if (fTit.getText().isBlank())
@@ -954,14 +969,15 @@ public class ProcessoPanel extends JPanel {
         panel.setBorder(new EmptyBorder(8, 8, 8, 8));
         DefaultTableModel m = new DefaultTableModel(
                 new String[] { "Código", "Nome", "Principal" }, 0) {
-            public boolean isCellEditable(int row, int col) { return false; }
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
-        facade.listarAssuntosDoProcesso(p.getId()).forEach(ap ->
-                m.addRow(new Object[] {
-                        ap.getAssunto().getCodItem(),
-                        ap.getAssunto().getNome(),
-                        ap.isPrincipal() ? "Sim" : "—"
-                }));
+        facade.listarAssuntosDoProcesso(p.getId()).forEach(ap -> m.addRow(new Object[] {
+                ap.getAssunto().getCodItem(),
+                ap.getAssunto().getNome(),
+                ap.isPrincipal() ? "Sim" : "—"
+        }));
         panel.add(new JScrollPane(Ui.buildTable(m)), BorderLayout.CENTER);
         return panel;
     }
@@ -980,7 +996,9 @@ public class ProcessoPanel extends JPanel {
 
         DefaultTableModel resultModel = new DefaultTableModel(
                 new String[] { "Código", "Nome" }, 0) {
-            public boolean isCellEditable(int row, int col) { return false; }
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
         JTable tResult = Ui.buildTable(resultModel);
 
@@ -1003,17 +1021,21 @@ public class ProcessoPanel extends JPanel {
 
         Runnable doBusca = () -> {
             String termo = fBusca.getText().trim();
-            if (termo.isBlank()) return;
+            if (termo.isBlank())
+                return;
             resultModel.setRowCount(0);
-            facade.buscarAssuntosCNJ(termo).forEach(a ->
-                    resultModel.addRow(new Object[] { a.getCodItem(), a.getNome() }));
+            facade.buscarAssuntosCNJ(termo)
+                    .forEach(a -> resultModel.addRow(new Object[] { a.getCodItem(), a.getNome() }));
         };
         btnBuscar.addActionListener(e -> doBusca.run());
         fBusca.addActionListener(e -> doBusca.run());
 
         btnAdd.addActionListener(e -> {
             int row = tResult.getSelectedRow();
-            if (row < 0) { Ui.aviso(dlg, "Selecione um assunto nos resultados."); return; }
+            if (row < 0) {
+                Ui.aviso(dlg, "Selecione um assunto nos resultados.");
+                return;
+            }
             int mRow = tResult.convertRowIndexToModel(row);
             Long codItem = (Long) resultModel.getValueAt(mRow, 0);
             String nome = (String) resultModel.getValueAt(mRow, 1);
@@ -1029,7 +1051,10 @@ public class ProcessoPanel extends JPanel {
 
         btnPrincipal.addActionListener(e -> {
             int row = tAssuntos.getSelectedRow();
-            if (row < 0) { Ui.aviso(dlg, "Selecione um assunto."); return; }
+            if (row < 0) {
+                Ui.aviso(dlg, "Selecione um assunto.");
+                return;
+            }
             int mRow = tAssuntos.convertRowIndexToModel(row);
             for (int i = 0; i < assuntosModel.getRowCount(); i++)
                 assuntosModel.setValueAt(i == mRow ? "Sim" : "—", i, 3);
@@ -1037,7 +1062,10 @@ public class ProcessoPanel extends JPanel {
 
         btnRem.addActionListener(e -> {
             int row = tAssuntos.getSelectedRow();
-            if (row < 0) { Ui.aviso(dlg, "Selecione um assunto."); return; }
+            if (row < 0) {
+                Ui.aviso(dlg, "Selecione um assunto.");
+                return;
+            }
             int mRow = tAssuntos.convertRowIndexToModel(row);
             assuntosModel.removeRow(mRow);
         });

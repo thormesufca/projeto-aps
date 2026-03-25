@@ -34,7 +34,7 @@ public class ContratoPanel extends JPanel {
 
     public ContratoPanel(SistemaJuridicoFacade facade) {
         this.facade = facade;
-        setBackground(Color.WHITE);
+        setBackground(Color.BLACK);
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(20, 20, 20, 20));
 

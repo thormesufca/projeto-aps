@@ -5,6 +5,7 @@ import br.edu.ufca.audiencias.models.Processo;
 import br.edu.ufca.audiencias.models.enums.TipoDocumento;
 import br.edu.ufca.audiencias.padroes.criacionais.singleton.ConexaoBancoDadosSingleton;
 import br.edu.ufca.audiencias.padroes.estruturais.decorator.DocumentoAssinadoDecorator;
+import br.edu.ufca.audiencias.padroes.estruturais.decorator.DocumentoDecorator;
 import br.edu.ufca.audiencias.padroes.estruturais.decorator.DocumentoProtocoladoDecorator;
 import br.edu.ufca.audiencias.padroes.estruturais.decorator.DocumentoUrgenteDecorator;
 
@@ -22,11 +23,11 @@ public class DocumentoRepository {
     }
 
     public Documento salvar(Documento documento) {
-        boolean assinado = documento instanceof DocumentoAssinadoDecorator;
-        boolean protocolado = documento instanceof DocumentoProtocoladoDecorator;
-        boolean urgente = documento instanceof DocumentoUrgenteDecorator;
+        boolean assinado    = encontrarDecorator(documento, DocumentoAssinadoDecorator.class) != null;
+        boolean protocolado = encontrarDecorator(documento, DocumentoProtocoladoDecorator.class) != null;
+        boolean urgente     = encontrarDecorator(documento, DocumentoUrgenteDecorator.class) != null;
         String numProtocolo = null;
-        if (protocolado) numProtocolo = ((DocumentoProtocoladoDecorator) documento).getNumeroProtocolo();
+        if (protocolado) numProtocolo = encontrarDecorator(documento, DocumentoProtocoladoDecorator.class).getNumeroProtocolo();
 
         Documento base = desempacotar(documento);
 
@@ -38,7 +39,7 @@ public class DocumentoRepository {
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, base.getTitulo());
             ps.setString(2, base.getDescricao());
-            ps.setInt(3, base.getSequencial());
+            ps.setInt(3, base.getSequencial() != null ? base.getSequencial() : 0);
             ps.setString(4, base.getCaminhoArquivo());
             ps.setString(5, base.getTipo() != null ? base.getTipo().name() : "OUTRO");
             ps.setString(6, (base.getDataUpload() != null ? base.getDataUpload() : LocalDate.now()).toString());
@@ -103,6 +104,14 @@ public class DocumentoRepository {
         }
         if (rs.getInt("is_urgente") == 1)     resultado = new DocumentoUrgenteDecorator(resultado);
         return resultado;
+    }
+
+    /** Busca recursivamente um decorator específico na cadeia. */
+    @SuppressWarnings("unchecked")
+    private <T extends DocumentoDecorator> T encontrarDecorator(Documento doc, Class<T> tipo) {
+        if (tipo.isInstance(doc)) return (T) doc;
+        if (doc instanceof DocumentoDecorator dec) return encontrarDecorator(dec.getDocumentoDecorado(), tipo);
+        return null;
     }
 
     /** Desempacota recursivamente todos os decorators para obter o Documento base. */

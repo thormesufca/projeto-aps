@@ -40,7 +40,7 @@ public class AudienciaPanel extends JPanel {
 
     public AudienciaPanel(SistemaJuridicoFacade facade) {
         this.facade = facade;
-        setBackground(Color.WHITE);
+        setBackground(Color.BLACK);
         setLayout(new BorderLayout(0, 8));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -90,11 +90,11 @@ public class AudienciaPanel extends JPanel {
     }
 
     private JScrollPane buildCalendarArea() {
-        calendarGrid.setBackground(Color.WHITE);
+        calendarGrid.setBackground(Color.BLACK);
         calendarGrid.setLayout(new GridLayout(0, 7, 2, 2));
         JScrollPane scroll = new JScrollPane(calendarGrid);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.getViewport().setBackground(Color.BLACK);
         return scroll;
     }
 
@@ -132,7 +132,7 @@ public class AudienciaPanel extends JPanel {
         return bar;
     }
 
-       public void atualizar() {
+    public void atualizar() {
         audienciaSelecionada = null;
         atualizarBotoes();
         renderizarCalendario();
@@ -166,7 +166,6 @@ public class AudienciaPanel extends JPanel {
             calendarGrid.add(lbl);
         }
 
-        
         List<Audiencia> lista;
         try {
             lista = facade.listarAudienciasPorMes(mes, ano, true);
@@ -203,7 +202,7 @@ public class AudienciaPanel extends JPanel {
     private JPanel buildCelulaDia(int dia, List<Audiencia> audiencias) {
         JPanel cell = new JPanel();
         cell.setLayout(new BoxLayout(cell, BoxLayout.Y_AXIS));
-        cell.setBackground(Color.WHITE);
+        cell.setBackground(Color.DARK_GRAY);
         cell.setBorder(new LineBorder(new Color(210, 210, 210)));
         cell.setMinimumSize(new Dimension(80, 80));
         cell.setPreferredSize(new Dimension(120, 90));
@@ -215,7 +214,7 @@ public class AudienciaPanel extends JPanel {
 
         LocalDate hoje = LocalDate.now();
         if (dia == hoje.getDayOfMonth() && mes == hoje.getMonthValue() && ano == hoje.getYear()) {
-            cell.setBackground(new Color(232, 240, 255));
+            cell.setBackground(Color.LIGHT_GRAY);
             dayLbl.setForeground(MainWindow.ACCENT);
         }
 
@@ -259,7 +258,8 @@ public class AudienciaPanel extends JPanel {
         btn.setAlignmentX(Component.LEFT_ALIGNMENT);
         btn.setMargin(new Insets(1, 4, 1, 4));
 
-        String processo = a.getProcesso() != null ? MaskedField.formatarNumeroProcesso(a.getProcesso().getNumero()) : "-";
+        String processo = a.getProcesso() != null ? MaskedField.formatarNumeroProcesso(a.getProcesso().getNumero())
+                : "-";
         btn.setToolTipText("Processo: " + processo + " | " + a.getStatus() + " | " + a.getDescricao());
         btn.addActionListener(e -> selecionarAudiencia(a));
         return btn;
@@ -285,7 +285,8 @@ public class AudienciaPanel extends JPanel {
             lblSelecionada.setForeground(Color.GRAY);
         } else {
             String proc = audienciaSelecionada.getProcesso() != null
-                    ? MaskedField.formatarNumeroProcesso(audienciaSelecionada.getProcesso().getNumero()) : "-";
+                    ? MaskedField.formatarNumeroProcesso(audienciaSelecionada.getProcesso().getNumero())
+                    : "-";
             if (vencida) {
                 lblSelecionada.setText("[" + proc + "] " + audienciaSelecionada.getTipo()
                         + " — data vencida, finalize o registro");
@@ -350,17 +351,20 @@ public class AudienciaPanel extends JPanel {
     }
 
     private void editarObservacoes() {
-        if (audienciaSelecionada == null) return;
+        if (audienciaSelecionada == null)
+            return;
         String atual = String.join("\n", audienciaSelecionada.getObservacoes());
         JTextArea ta = new JTextArea(atual, 8, 40);
         ta.setLineWrap(true);
         ta.setWrapStyleWord(true);
         int opt = JOptionPane.showConfirmDialog(this, new JScrollPane(ta),
                 "Observações (uma por linha)", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (opt != JOptionPane.OK_OPTION) return;
+        if (opt != JOptionPane.OK_OPTION)
+            return;
         List<String> obs = new ArrayList<>();
         for (String linha : ta.getText().split("\n")) {
-            if (!linha.isBlank()) obs.add(linha);
+            if (!linha.isBlank())
+                obs.add(linha);
         }
         try {
             facade.editarObservacoesAudiencia(audienciaSelecionada.getId(), obs);

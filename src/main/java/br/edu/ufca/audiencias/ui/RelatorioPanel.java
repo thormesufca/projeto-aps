@@ -30,7 +30,7 @@ public class RelatorioPanel extends JPanel {
 
     public RelatorioPanel(SistemaJuridicoFacade facade) {
         this.facade = facade;
-        setBackground(Color.WHITE);
+        setBackground(Color.BLACK);
         setLayout(new BorderLayout(0, 10));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -62,7 +62,8 @@ public class RelatorioPanel extends JPanel {
 
         resultado.setEditable(false);
         resultado.setFont(new Font("Consolas", Font.PLAIN, 12));
-        resultado.setBackground(new Color(250, 250, 250));
+        resultado.setBackground(Color.BLACK);
+        resultado.setForeground(Color.WHITE);
         JScrollPane scroll = new JScrollPane(resultado);
         scroll.setBorder(BorderFactory.createTitledBorder("Resultado"));
 

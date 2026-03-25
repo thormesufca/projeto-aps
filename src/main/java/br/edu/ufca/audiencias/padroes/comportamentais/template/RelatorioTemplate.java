@@ -28,7 +28,7 @@ public abstract class RelatorioTemplate {
     protected abstract String formatarCorpo();
 
     protected String gerarRodape() {
-        return "\n====================================================\n" +
+        return "\n======================================================\n" +
                "                     FIM DO RELATÓRIO                 \n" +
                "======================================================\n";
     }

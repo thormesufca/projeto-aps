@@ -28,7 +28,7 @@ public class AdvogadoPanel extends JPanel {
 
     public AdvogadoPanel(SistemaJuridicoFacade facade) {
         this.facade = facade;
-        setBackground(Color.WHITE);
+        setBackground(Color.BLACK);
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
