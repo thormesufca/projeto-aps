@@ -48,7 +48,7 @@ Tratando-se da entidade que centra os demais dados, elaborou-se um diagrama sequ
 ![Diagrama de Sequência - Criação de Processo](./diagramas/Diagrama%20de%20Sequencia%20-%20Cadastro%20de%20Processo.png "Diagrama de Sequência - Criar Processo")
 
 ### Instalação do sistema
-Considerando que o sistema utilizará Sqlite para persistência de dados, é recomendável seguir as instruções continas em (`./lib/LEIA-ME.txt`) para download dos arquivos `.jar`. Seque ainda arquivo `./lib/assuntos.json` contendo a tabela de assuntos do CNJ, para cadastro.
+Considerando que o sistema utilizará Sqlite para persistência de dados, é recomendável seguir as instruções contidas em (`./lib/LEIA-ME.txt`) para download dos arquivos `.jar`. Importante manter ainda o arquivo `./lib/assuntos.json` contendo a tabela de assuntos do CNJ, para cadastro.
 
 Para compilação, a máquina precisa ter o Java SDK instalado, na versão 21. Antes de rodar o programa, é necessário passar pela etapa de compilação, executando o arquivo
 ```cmd
