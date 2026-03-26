@@ -67,12 +67,14 @@ if %ERRORLEVEL% EQU 0 (
         exit /b 1
     )
 
-    :: Popular banco com dados de teste
-    echo      Inserindo dados de teste...
-    %JAVA% -cp "%OUT%;%LIB%" br.edu.ufca.audiencias.tools.SeedDb
-    if %ERRORLEVEL% NEQ 0 (
-        echo [ERRO] Falha ao inserir dados de teste.
-        exit /b 1
+    :: Popular banco com dados de teste (somente com flag --seed)
+    if "%~1"=="-s" (
+        echo      Inserindo dados de teste...
+        %JAVA% -cp "%OUT%;%LIB%" br.edu.ufca.audiencias.tools.SeedDb
+        if %ERRORLEVEL% NEQ 0 (
+            echo [ERRO] Falha ao inserir dados de teste.
+            exit /b 1
+        )
     )
 
     echo.
